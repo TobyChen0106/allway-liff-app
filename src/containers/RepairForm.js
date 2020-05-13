@@ -24,7 +24,8 @@ class App extends Component {
             profile: {
                 displayName: "親愛的用戶",
                 userId: "",
-                lineId: "",
+                pictureUrl: "",
+                statusMessage: "",
             },
             OS: undefined,
             loading: true,
@@ -51,21 +52,18 @@ class App extends Component {
                 // }
             }
         ).then(
-            () => liff.getDecodedIDToken()
+            // () => liff.getDecodedIDToken()
+            () => liff.getProfile()
         ).then((profile) => {
             if (!profile) {
                 window.alert("USER PROFILE ERROR!");
             } else {
                 this.setState({
                     profile: {
-                        displayName: profile.name,
-                        userId: profile.sub,
-                        lineId: profile.aud,
-                        exp: profile.exp,
-                        iat: profile.iat,
-                        nonce: profile.nonce,
-                        amr: profile.amr,
-                        picture: profile.picture,
+                        displayName: profile.displayName,
+                        userId: profile.userId,
+                        pictureUrl: profile.pictureUrl,
+                        statusMessage: profile.statusMessage,
                     }
                 });
             }
@@ -88,7 +86,7 @@ class App extends Component {
             else {
                 liff.sendMessages([{
                     type: 'text',
-                    text: `報修者:${this.state.profile.lineId}, 報修機器:${this.state.machine}, 情況簡述:${this.state.condition}, 其他建議:${this.state.suggestion}`
+                    text: `報修者:${this.state.profile.userId}, 報修機器:${this.state.machine}, 情況簡述:${this.state.condition}, 其他建議:${this.state.suggestion}`
                 }]).catch(function (error) {
                     window.alert("Error sending message: " + error);
                 }).then(() => {
