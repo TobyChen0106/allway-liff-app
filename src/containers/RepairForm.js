@@ -46,9 +46,9 @@ class App extends Component {
         ).then(
             (OS) => {
                 this.setState({ OS: OS });
-                if (OS === "web") {
-                    liff.login();
-                }
+                // if (OS === "web") {
+                //     liff.login();
+                // }
             }
         ).then(
             () => liff.getDecodedIDToken()
