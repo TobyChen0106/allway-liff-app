@@ -38,7 +38,7 @@ class App extends Component {
     }
 
     componentDidMount() {
-        liff.init({ liffId: '1654206919-DNzjoYvB' }).then(() => {
+        liff.init({ liffId: '1654207080-9E5Ba1vl' }).then(() => {
             if (!liff.isLoggedIn()) {
                 liff.login({ redirectUri: "https://allway-liff-app.herokuapp.com/" });
             }

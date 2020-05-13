@@ -21,13 +21,13 @@ const useStyles = ((theme) => ({
         paddingBottom: '5.5rem'
     },
     textField: {
-        margin: '5%',
-        width: '90%',
+        margin: '1rem',
+        maxWidth: '100%',
     },
     formControl: {
-        margin: '5%',
-        width: '90%',
-        marginBottom: '10%',
+        margin: '1rem',
+        maxWidth: '100%',
+        marginBottom: '2rem',
     },
 }));
 
