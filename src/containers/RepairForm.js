@@ -9,10 +9,10 @@ import autopass_image from '../images/autopass-logo.png'
 import ReactLoading from 'react-loading';
 
 // components
-import Form from '../components/Form'
-import AppTitle from '../components/AppTitle'
-import SaveFooter from '../components/SaveFooter'
-
+import Form from '../components/Form';
+import AppTitle from '../components/AppTitle';
+import SaveFooter from '../components/SaveFooter';
+import { users, errors } from '../db/db';
 // Liff
 const liff = window.liff;
 
@@ -25,14 +25,29 @@ class App extends Component {
                 displayName: "親愛的用戶",
                 userId: "",
                 pictureUrl: "",
-                statusMessage: "",
+            },
+            userData: {
+                machines: [{
+                    'machineName': '酷炫咖啡機 C-4261',
+                    'machineID': 'C-4261',
+                    'machineType': '咖啡機',
+                    'machineTypeID': 'C001',
+                    'machineProducer': '雀巢',
+                },
+                {
+                    'machineName': '智慧販賣機 V-1564',
+                    'machineID': 'V-1564',
+                    'machineType': '智慧販賣機',
+                    'machineTypeID': 'V001',
+                    'machineProducer': '雀巢',
+                }]
             },
             OS: undefined,
             loading: true,
 
             machine: undefined,
             condition: undefined,
-            suggestion: "",
+            discription: "",
         };
 
     }
@@ -45,16 +60,13 @@ class App extends Component {
         }).then(
             () => liff.getOS()
         ).then(
-            (OS) => {
-                this.setState({ OS: OS });
-                // if (OS === "web") {
-                //     liff.login();
-                // }
-            }
-        ).then(
-            // () => liff.getDecodedIDToken()
             () => liff.getProfile()
         ).then((profile) => {
+            // const profile = {
+            //     displayName: "柏志",
+            //     userId: "12345",
+            //     pictureUrl: "柏志",
+            // }
             if (!profile) {
                 window.alert("USER PROFILE ERROR!");
             } else {
@@ -63,7 +75,6 @@ class App extends Component {
                         displayName: profile.displayName,
                         userId: profile.userId,
                         pictureUrl: profile.pictureUrl,
-                        statusMessage: profile.statusMessage,
                     }
                 });
             }
@@ -71,10 +82,10 @@ class App extends Component {
         }).then(() => {
             this.setState({ loading: false });
         });
-        // this.setState({ loading: false });
     }
 
     formOnSubmit = () => {
+        console.log("formOnSubmit")
         if (!this.state.machine || !this.state.condition) {
             window.alert("請輸入必填項目!");
         } else {
@@ -86,7 +97,7 @@ class App extends Component {
             else {
                 liff.sendMessages([{
                     type: 'text',
-                    text: `報修者:${this.state.profile.userId}, 報修機器:${this.state.machine}, 情況簡述:${this.state.condition}, 其他建議:${this.state.suggestion}`
+                    text: `報修者:${this.state.profile.userId}, 報修機器:${this.state.machine}, 情況簡述:${this.state.condition}, 其他建議:${this.state.discription}`
                 }]).catch(function (error) {
                     window.alert("Error sending message: " + error);
                 }).then(() => {
@@ -118,10 +129,9 @@ class App extends Component {
                     />
                     <Form
                         handleTextareaChange={this.handleTextareaChange}
-                    />
-                    <SaveFooter
+                        userMachines={this.state.userData.machines}
+                        errors={errors}
                         formOnSubmit={this.formOnSubmit}
-                        saveButtonName={`儲存`}
                     />
                 </div>
             );
