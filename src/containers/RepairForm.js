@@ -28,7 +28,7 @@ class App extends Component {
             },
             userData: {
                 machines: [{
-                    'machineName': '酷炫咖啡機 C-4261',
+                    'machineName': '咖啡機 C-4261',
                     'machineID': 'C-4261',
                     'machineType': '咖啡機',
                     'machineTypeID': 'C001',
@@ -97,7 +97,7 @@ class App extends Component {
             else {
                 liff.sendMessages([{
                     type: 'text',
-                    text: `報修者:${this.state.profile.userId}, 報修機器:${this.state.machine}, 情況簡述:${this.state.condition}, 其他建議:${this.state.discription}`
+                    text: `員工代號:${this.state.profile.userId}, 報修機器:${this.state.machine}, 狀況代號:${this.state.condition},  問題描述:${this.state.discription}`
                 }]).catch(function (error) {
                     window.alert("Error sending message: " + error);
                 }).then(() => {
