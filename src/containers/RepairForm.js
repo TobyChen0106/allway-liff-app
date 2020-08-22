@@ -55,18 +55,13 @@ class App extends Component {
     componentDidMount() {
         liff.init({ liffId: '1654207080-9E5Ba1vl' }).then(() => {
             if (!liff.isLoggedIn()) {
-                liff.login({ redirectUri: "https://allway.cardbo.info/" });
+                // liff.login({ redirectUri: "https://allway.cardbo.info/" });
             }
         }).then(
             () => liff.getOS()
         ).then(
             () => liff.getProfile()
         ).then((profile) => {
-            // const profile = {
-            //     displayName: "柏志",
-            //     userId: "12345",
-            //     pictureUrl: "柏志",
-            // }
             if (!profile) {
                 window.alert("USER PROFILE ERROR!");
             } else {
