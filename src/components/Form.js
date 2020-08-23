@@ -18,13 +18,10 @@ import './SelectList.css'
 
 const useStyles = ((theme) => ({
     root: {
-        // '& .MuiTextField-root': {
-        //     margin: theme.spacing(1),
-        //     width: '25ch',
-        // },
+        width: "82vw",
+        margin: "9vw",
         display: 'flex',
         flexDirection: 'column',
-        paddingBottom: '5.5rem'
     },
     textField: {
         margin: '1rem',
@@ -36,26 +33,26 @@ const useStyles = ((theme) => ({
         marginBottom: '2rem',
     },
     solution: {
-        width: '90vw',
+        width: '72vw',
         margin: '5vw',
-        backgroundColor: '#edf7ed'
+        backgroundColor: '#edf7ed',
+        whiteSpace: 'pre-line'
     },
     title: {
-        fontSize: 14,
+        fontSize: "5vw",
     },
     content: {
-        fontSize: 20,
+        fontSize: "4.5vw",
     },
     submit: {
-        width: '90vw',
-        margin: '5vw',
+        width: '82vw',
         backgroundColor: '#fff4e5'
     },
-    button:{
-        width: '90vw',
+    button: {
+        width: '72vw',
         margin: '5vw',
         backgroundColor: '#0063cc',
-        color:'#fff'
+        color: '#fff'
     }
 }));
 
@@ -63,40 +60,42 @@ class Form extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            machine: "",
+            machineId: "",
+            machineType: "",
             solution: "",
             showSubmit: false,
         };
     }
 
     componentDidMount = () => {
-        if (this.props.userMachines.length === 1) {
-            this.setState({ machine: this.props.userMachines[0].machineTypeID });
+        if (this.props.customerMachineList.length === 1) {
+            this.setState({ machineId: this.props.customerMachineList[0].Device_Id, machineType: this.props.customerMachineList[0].Devie_Type_Id });
+            this.props.handleTextareaChange({ Device_Id: this.props.customerMachineList[0].Device_Id })
         }
     }
 
     handleSelectMachine = (e) => {
-        const m = this.props.userMachines.find(m => m.machineID === e.target.value);
-        this.setState({ machine: m.machineTypeID, solution: "", showSubmit: false });
-        this.props.handleTextareaChange({ machine: e.target.value })
+        const m = this.props.customerMachineList.find(m => m.Device_Id === e.target.value);
+        this.setState({ machineId: m.Device_Id, machineType: m.Devie_Type_Id });
+        this.props.handleTextareaChange({ Device_Id: e.target.value })
     }
 
     handleSelectSituation = (e) => {
-        this.props.handleTextareaChange({ condition: e.target.value });
-        const s = this.props.errors.find(er => er.errorID === e.target.value);
-        this.setState({ solution: s.solution, showSubmit: true });
+        this.props.handleTextareaChange({ Problem_Id: e.target.value });
+        const s = this.props.problemList.find(er => er.Problem_Id === e.target.value);
+        this.setState({ solution: s.Problem_Solution, showSubmit: true });
     }
 
     render() {
         const { classes } = this.props;
-        const machines = this.props.userMachines.map(
+        const machines = this.props.customerMachineList.map(
             (data, index) => (
-                <MenuItem value={data.machineID}>{data.machineName}</MenuItem>
+                <MenuItem value={data.Device_Id} style={{ whiteSpace: 'pre-line' }}>{`${data.Device_Type_Name} (機器編號:${data.Device_Id})`}</MenuItem>
             )
         );
-        const situation = this.props.errors.filter(e => e.machineTypeID === this.state.machine).map(
+        const situation = this.props.problemList.filter(e => e.Device_Type_Id === this.state.machineType).map(
             (data, index) => (
-                <MenuItem value={data.errorID}>{data.problem}</MenuItem>
+                <MenuItem value={data.Problem_Id} style={{ whiteSpace: 'pre-line' }}>{`[${data.Problem_Name}] ${data.Problem_Text}`}</MenuItem>
             )
         );
         const solution = this.state.solution ? (
@@ -114,23 +113,16 @@ class Form extends Component {
 
         const submit = this.state.showSubmit ? (
             <>
-                {/* <Card className={classes.submit}>
-                    <CardContent>
-                        <Typography className={classes.title} color="textSecondary" gutterBottom>
-                            ⚠️若無法解決問題，請填寫報修單!
-                        </Typography>
-                    </CardContent>
-                </Card> */}
                 <TextField
                     className={classes.textField}
                     id="standard-required"
-                    label="問題描述"
+                    label="備註事項 (選填)"
                     variant="outlined"
-                    onChange={(e) => this.props.handleTextareaChange({ discription: e.target.value })}
+                    onChange={(e) => this.props.handleTextareaChange({ Exception: e.target.value })}
                     multiline
                     rows={4}
                 />
-                <Button className={classes.button}  onClick={this.props.formOnSubmit} variant="contained" >
+                <Button className={classes.button} onClick={this.props.formOnSubmit} variant="contained" >
                     送出報修單
                 </Button>
             </>
@@ -143,7 +135,7 @@ class Form extends Component {
                         {`選擇報修機器*`}
                     </InputLabel>
                     <Select
-                        defaultValue={this.props.userMachines.length === 1 ? this.props.userMachines[0].machineID : null}
+                        defaultValue={this.props.customerMachineList.length === 1 ? this.props.customerMachineList[0].Device_Id : null}
                         labelId="demo-simple-select-placeholder-label-label"
                         id="demo-simple-select-placeholder-label"
                         onChange={(e) => this.handleSelectMachine(e)}

@@ -11,8 +11,19 @@ import ReactLoading from 'react-loading';
 // components
 import Form from '../components/Form';
 import AppTitle from '../components/AppTitle';
-import SaveFooter from '../components/SaveFooter';
+import UserInfoCard from '../components/UserInfoCard';
+
 import { users, errors } from '../db/db';
+
+import axios from 'axios'
+
+// util function
+const pad = (n, width, z) => {
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+}
+
 // Liff
 const liff = window.liff;
 
@@ -21,83 +32,152 @@ class App extends Component {
         super(props);
         this.state = {
             // profile: undefined,
-            profile: {
-                displayName: "親愛的用戶",
-                userId: "",
-                pictureUrl: "",
-            },
-            userData: {
-                machines: [{
-                    'machineName': '咖啡機 C-4261',
-                    'machineID': 'C-4261',
-                    'machineType': '咖啡機',
-                    'machineTypeID': 'C001',
-                    'machineProducer': '雀巢',
-                },
-                {
-                    'machineName': '智慧販賣機 V-1564',
-                    'machineID': 'V-1564',
-                    'machineType': '智慧販賣機',
-                    'machineTypeID': 'V001',
-                    'machineProducer': '雀巢',
-                }]
-            },
-            OS: undefined,
-            loading: true,
 
-            machine: undefined,
-            condition: undefined,
-            discription: "",
+            displayName: "親愛的用戶",
+            userId: "",
+            pictureUrl: "",
+            Store_Name: "",
+            Customer_Name: "",
+            Customer_Mobile: "",
+            Customer_Email: "",
+            Customer_Id: "",
+            problemList: [],
+            customerMachineList: [],
+            loadingUser: true,
+            loadingProblem: true,
+
+            Device_Id: "",
+            Problem_Id: "",
+            Exception: ""
         };
 
     }
 
     componentDidMount() {
+        // const profile = {
+        //     displayName: "柏志",
+        //     userId: "test_line_id",
+        //     pictureUrl: "https://d.newsweek.com/en/full/1192199/avatar-sigourney-weaver-avatar-sequels.jpg?w=1600&h=1600&q=88&f=d41aed8821112924083487cf75761f49",
+        // }
         liff.init({ liffId: '1654207080-9E5Ba1vl' }).then(() => {
             if (!liff.isLoggedIn()) {
-                // liff.login({ redirectUri: "https://allway.cardbo.info/" });
+                liff.login({ redirectUri: "https://allway.cardbo.info/" });
             }
         }).then(
-            () => liff.getOS()
-        ).then(
             () => liff.getProfile()
         ).then((profile) => {
             if (!profile) {
+                // loading line user profile error
                 window.alert("USER PROFILE ERROR!");
             } else {
                 this.setState({
-                    profile: {
-                        displayName: profile.displayName,
-                        userId: profile.userId,
-                        pictureUrl: profile.pictureUrl,
-                    }
+                    displayName: profile.displayName,
+                    userId: profile.userId,
+                    pictureUrl: profile.pictureUrl,
+                    loading: false
                 });
+
+                axios.get('http://allway.southeastasia.cloudapp.azure.com/devAllwayApi/Api/Repair/ListCustomer').then(
+                    res => res.data
+                ).then(data => {
+                    if (data.isSuccess) {
+                        this.setState({ customerList: data.body });
+                        for (let i = 0; i < data.body.length; ++i) {
+                            if (data.body[i].Line_Id === profile.userId) {
+                                this.setState({
+                                    Store_Name: data.body[i].Store_Name,
+                                    Customer_Name: data.body[i].Customer_Name,
+                                    Customer_Mobile: data.body[i].Customer_Mobile,
+                                    Customer_Email: data.body[i].Customer_Email,
+                                    Customer_Id: data.body[i].Customer_Id,
+                                })
+                                return data.body[i].Customer_Id
+                            }
+                        }
+                    } else {
+                        // loading ListCustomer error
+                        return null;
+                    }
+                }).then(Customer_Id => {
+                    let customerMachineList = [];
+                    axios.get('http://allway.southeastasia.cloudapp.azure.com/devAllwayApi/Api/Repair/ListDevice').then(
+                        res => res.data
+                    ).then(data => {
+                        if (data.isSuccess) {
+                            for (let i = 0; i < data.body.length; ++i) {
+                                if (data.body[i].Customer_Id_1 === Customer_Id || data.body[i].Customer_Id_2 === Customer_Id || data.body[i].Customer_Id_3 === Customer_Id) {
+                                    customerMachineList.push(data.body[i]);
+                                }
+                            }
+                            this.setState({ customerMachineList: customerMachineList, customerList: data.body, loadingUser: false });
+                        } else {
+                            // loading ListDevice error
+                        }
+                    }).catch(error => console.log(error));
+                }).catch(error => console.log(error));
             }
             console.log(profile);
         }).then(() => {
             this.setState({ loading: false });
         });
+
+        axios.get('http://allway.southeastasia.cloudapp.azure.com/devAllwayApi/Api/Repair/ListProblem').then(
+            res => res.data
+        ).then(data => {
+            if (data.isSuccess) {
+                this.setState({ problemList: data.body, loadingProblem: false });
+            } else {
+                // loading ListProblem error
+            }
+        }).catch(error => console.log(error));
+
     }
 
     formOnSubmit = () => {
         console.log("formOnSubmit")
-        if (!this.state.machine || !this.state.condition) {
+        if (!this.state.Device_Id || !this.state.Problem_Id) {
             window.alert("請輸入必填項目!");
         } else {
             if (this.state.OS === 'web') {
                 liff.logout();
-                // console.log('test')
-                // console.log(`報修者:${this.state.profile.lineId}, 報修機器:${this.state.machine}, 情況簡述:${this.state.condition}, 其他建議:${this.state.suggestion}`);
             }
             else {
-                liff.sendMessages([{
-                    type: 'text',
-                    text: `員工代號:${this.state.profile.userId}, 報修機器:${this.state.machine}, 狀況代號:${this.state.condition},  問題描述:${this.state.discription}`
-                }]).catch(function (error) {
-                    window.alert("Error sending message: " + error);
-                }).then(() => {
-                    liff.closeWindow();
-                });
+                const timeNow = new Date()
+                const y = timeNow.getFullYear();
+                const m = pad(timeNow.getMonth() + 1, 2);
+                const d = pad(timeNow.getDate(), 2);
+                const h = pad(timeNow.getHours(), 2);
+                const mi = pad(timeNow.getMinutes(), 2);
+                const s = pad(timeNow.getSeconds(), 2);
+                const timeStamp = `${y}-${m}-${d} ${h}:${mi}:${s}`;
+
+                axios.post('http://allway.southeastasia.cloudapp.azure.com/devAllwayApi/Api/Repair/CreateOrder',
+                    {
+                        Order_DateTime: timeStamp,
+                        Customer_Id: this.state.Customer_Id,
+                        Device_Id: this.state.Device_Id,
+                        Problem_Id: this.state.Problem_Id,
+                        Exception: this.state.Exception
+                    }
+                ).then(
+                    res => res.data
+                ).then(data => {
+                    if (data.isSuccess && data.body === true) {
+                        liff.sendMessages([{
+                            type: 'text',
+                            text: `已完成報修，送出報修單時間: ${timeStamp}`
+                        }]).catch(function (error) {
+                            window.alert("Error sending message: " + error);
+                        }).then(() => {
+                            liff.closeWindow();
+                        });
+                    } else {
+                        // POST request error
+
+                    }
+                }).catch(error => console.log(error));
+
+
             }
         }
     }
@@ -107,8 +187,7 @@ class App extends Component {
     }
 
     render() {
-        if (this.state.loading) {
-            // if (true) {
+        if (this.state.loadingUser || this.state.loadingProblem) {
             return (
                 <div className="my-loading">
                     <ReactLoading type={'balls'} color={'#0068b9'} height={'20vh'} width={'20vw'} />
@@ -117,15 +196,18 @@ class App extends Component {
         else {
             return (
                 <div className="select-cards-container">
-                    <AppTitle
-                        logo={autopass_image}
-                        title={`ALLWAY Line@ 報修系統`}
-                        subtitle={`${this.state.profile.displayName} 您好，歡迎使用本報修系統:`}
+                    <UserInfoCard
+                        displayName={this.state.displayName}
+                        pictureUrl={this.state.pictureUrl}
+                        Store_Name={this.state.Store_Name}
+                        Customer_Name={this.state.Customer_Name}
+                        Customer_Mobile={this.state.Customer_Mobile}
+                        Customer_Email={this.state.Customer_Email}
                     />
                     <Form
                         handleTextareaChange={this.handleTextareaChange}
-                        userMachines={this.state.userData.machines}
-                        errors={errors}
+                        customerMachineList={this.state.customerMachineList}
+                        problemList={this.state.problemList}
                         formOnSubmit={this.formOnSubmit}
                     />
                 </div>
