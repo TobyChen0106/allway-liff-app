@@ -13,8 +13,6 @@ import Form from '../components/Form';
 import AppTitle from '../components/AppTitle';
 import UserInfoCard from '../components/UserInfoCard';
 
-import { users, errors } from '../db/db';
-
 import axios from 'axios'
 
 // util function
@@ -77,7 +75,7 @@ class App extends Component {
                     loading: false
                 });
 
-                axios.get('http://allway.southeastasia.cloudapp.azure.com/devAllwayApi/Api/Repair/ListCustomer').then(
+                axios.get('/api/ListCustomer').then(
                     res => res.data
                 ).then(data => {
                     if (data.isSuccess) {
@@ -100,7 +98,7 @@ class App extends Component {
                     }
                 }).then(Customer_Id => {
                     let customerMachineList = [];
-                    axios.get('http://allway.southeastasia.cloudapp.azure.com/devAllwayApi/Api/Repair/ListDevice').then(
+                    axios.get('/api/ListDevice').then(
                         res => res.data
                     ).then(data => {
                         if (data.isSuccess) {
@@ -121,7 +119,7 @@ class App extends Component {
             this.setState({ loading: false });
         });
 
-        axios.get('http://allway.southeastasia.cloudapp.azure.com/devAllwayApi/Api/Repair/ListProblem').then(
+        axios.get('/api/ListProblem').then(
             res => res.data
         ).then(data => {
             if (data.isSuccess) {
@@ -151,7 +149,7 @@ class App extends Component {
                 const s = pad(timeNow.getSeconds(), 2);
                 const timeStamp = `${y}-${m}-${d} ${h}:${mi}:${s}`;
 
-                axios.post('http://allway.southeastasia.cloudapp.azure.com/devAllwayApi/Api/Repair/CreateOrder',
+                axios.post('/api/CreateOrder',
                     {
                         Order_DateTime: timeStamp,
                         Customer_Id: this.state.Customer_Id,
