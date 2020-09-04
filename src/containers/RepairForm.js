@@ -58,7 +58,7 @@ class App extends Component {
         // }
         liff.init({ liffId: '1654207080-9E5Ba1vl' }).then(() => {
             if (!liff.isLoggedIn()) {
-                liff.login({ redirectUri: "https://allway.cardbo.info/" });
+                liff.login({ redirectUri: "https://allway-liff-app.herokuapp.com/" });
             }
         }).then(
             () => liff.getProfile()
