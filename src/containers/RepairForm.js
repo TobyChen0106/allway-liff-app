@@ -12,7 +12,6 @@ import ReactLoading from 'react-loading';
 import Form from '../components/Form';
 import AppTitle from '../components/AppTitle';
 import UserInfoCard from '../components/UserInfoCard';
-
 import axios from 'axios'
 
 // util function
@@ -114,7 +113,6 @@ class App extends Component {
                     }).catch(error => console.log(error));
                 }).catch(error => console.log(error));
             }
-            console.log(profile);
         }).then(() => {
             this.setState({ loading: false });
         });
@@ -132,7 +130,6 @@ class App extends Component {
     }
 
     formOnSubmit = () => {
-        console.log("formOnSubmit")
         if (!this.state.Device_Id || !this.state.Problem_Id) {
             window.alert("請輸入必填項目!");
         } else {
@@ -140,7 +137,7 @@ class App extends Component {
                 liff.logout();
             }
             else {
-                const timeNow = new Date()
+                let timeNow = new Date();
                 const y = timeNow.getFullYear();
                 const m = pad(timeNow.getMonth() + 1, 2);
                 const d = pad(timeNow.getDate(), 2);
@@ -171,11 +168,8 @@ class App extends Component {
                         });
                     } else {
                         // POST request error
-
                     }
                 }).catch(error => console.log(error));
-
-
             }
         }
     }
