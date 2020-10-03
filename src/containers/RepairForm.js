@@ -12,6 +12,7 @@ import ReactLoading from 'react-loading';
 import Form from '../components/Form';
 import AppTitle from '../components/AppTitle';
 import UserInfoCard from '../components/UserInfoCard';
+import UserNotValid from '../components/UserNotValid';
 import axios from 'axios'
 
 // util function
@@ -42,6 +43,7 @@ class App extends Component {
             customerMachineList: [],
             loadingUser: true,
             loadingProblem: true,
+            userValid: false,
 
             Device_Id: "",
             Problem_Id: "",
@@ -82,6 +84,7 @@ class App extends Component {
                         for (let i = 0; i < data.body.length; ++i) {
                             if (data.body[i].Line_Id === profile.userId) {
                                 this.setState({
+                                    userValid: true,
                                     Store_Name: data.body[i].Store_Name,
                                     Customer_Name: data.body[i].Customer_Name,
                                     Customer_Mobile: data.body[i].Customer_Mobile,
@@ -185,7 +188,7 @@ class App extends Component {
                     <ReactLoading type={'balls'} color={'#0068b9'} height={'20vh'} width={'20vw'} />
                 </div>)
         }
-        else {
+        else if(this.state.userValid){
             return (
                 <div className="select-cards-container">
                     <UserInfoCard
@@ -204,6 +207,12 @@ class App extends Component {
                     />
                 </div>
             );
+        }else{
+            return (
+                <div className="select-cards-container">
+                    <UserNotValid/>
+                </div>
+            )
         }
     }
 }
